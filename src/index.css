@@ -1,0 +1,149 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 15 15 15; /* vintage.gray.900 */
+    --foreground: 248 250 252;
+
+    --card: 26 26 26; /* vintage.gray.800 */
+    --card-foreground: 248 250 252;
+
+    --popover: 26 26 26;
+    --popover-foreground: 248 250 252;
+
+    --primary: 139 92 246; /* vintage.purple-light */
+    --primary-foreground: 15 15 15;
+
+    --secondary: 45 45 45; /* vintage.gray.700 */
+    --secondary-foreground: 248 250 252;
+
+    --muted: 45 45 45;
+    --muted-foreground: 163 163 163; /* vintage.gray.300 */
+
+    --accent: 16 185 129; /* vintage.green */
+    --accent-foreground: 15 15 15;
+
+    --destructive: 239 68 68;
+    --destructive-foreground: 248 250 252;
+
+    --border: 64 64 64; /* vintage.gray.600 */
+    --input: 45 45 45;
+    --ring: 139 92 246;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 26 26 26;
+    --sidebar-foreground: 248 250 252;
+    --sidebar-primary: 139 92 246;
+    --sidebar-primary-foreground: 15 15 15;
+    --sidebar-accent: 45 45 45;
+    --sidebar-accent-foreground: 248 250 252;
+    --sidebar-border: 64 64 64;
+    --sidebar-ring: 139 92 246;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-vintage-gray-800;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-vintage-gray-600 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-vintage-gray-500;
+  }
+
+  /* Code block styling */
+  pre {
+    @apply bg-vintage-gray-800 border border-vintage-gray-700 rounded-lg p-4 overflow-x-auto font-mono text-sm;
+  }
+
+  code {
+    @apply font-mono text-vintage-green-light bg-vintage-gray-800 px-1 py-0.5 rounded text-sm;
+  }
+
+  pre code {
+    @apply bg-transparent p-0;
+  }
+
+  /* Markdown content styling */
+  .markdown-content {
+    @apply max-w-none;
+  }
+
+  .markdown-content h1 {
+    @apply text-3xl font-bold text-vintage-purple-light mb-6 font-serif;
+  }
+
+  .markdown-content h2 {
+    @apply text-2xl font-semibold text-vintage-amber-light mb-4 mt-8 font-serif;
+  }
+
+  .markdown-content h3 {
+    @apply text-xl font-medium text-vintage-green-light mb-3 mt-6 font-serif;
+  }
+
+  .markdown-content p {
+    @apply mb-4 leading-relaxed text-gray-300;
+  }
+
+  .markdown-content ul, .markdown-content ol {
+    @apply mb-4 ml-6;
+  }
+
+  .markdown-content li {
+    @apply mb-2 text-gray-300;
+  }
+
+  .markdown-content blockquote {
+    @apply border-l-4 border-vintage-purple pl-4 italic text-gray-400 my-4;
+  }
+
+  .markdown-content table {
+    @apply w-full border-collapse border border-vintage-gray-600 my-4;
+  }
+
+  .markdown-content th,
+  .markdown-content td {
+    @apply border border-vintage-gray-600 px-4 py-2 text-left;
+  }
+
+  .markdown-content th {
+    @apply bg-vintage-gray-700 font-semibold text-vintage-amber;
+  }
+
+  /* Terminal glow effects */
+  .terminal-glow {
+    text-shadow: 0 0 10px currentColor;
+  }
+
+  .markdown-content a.leetcode-link {
+    color: #ffd700;
+    text-decoration: underline;
+    font-weight: bold;
+    transition: color 0.2s;
+  }
+
+  .markdown-content a.leetcode-link:hover {
+    color: #ff9800;
+  }
+}
