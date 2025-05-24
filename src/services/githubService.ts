@@ -1,8 +1,5 @@
 const GITHUB_API_BASE = 'https://api.github.com';
-
-// GitHub Personal Access Token for higher rate limits
-// This is a public token with read-only access to public repositories
-const GITHUB_TOKEN = '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';
+const GITHUB_TOKEN = import.meta.env.VITE_GITHUB_TOKEN;
 
 interface GitHubFile {
   name: string;
@@ -67,75 +64,46 @@ export class GitHubService {
     return cacheEntry && (Date.now() - cacheEntry.timestamp) < this.cacheTimeout;
   }
 
-  async fetchRepoStructure(path: string = ''): Promise<FileNode[]> {
-    const cacheKey = this.getCacheKey(`structure:${path}`);
+  async fetchRepoStructure(): Promise<FileNode[]> {
+    const cacheKey = this.getCacheKey('structure:tree');
     const cached = this.cache.get(cacheKey);
-    
     if (this.isValidCache(cached)) {
-      console.log('Using cached repo structure for:', path);
+      console.log('Using cached repo structure (tree API)');
       return cached.data;
     }
-
     try {
-      const url = `${GITHUB_API_BASE}/repos/${this.owner}/${this.repo}/contents/${path}`;
-      console.log('Fetching repo structure:', url);
-      
-      const response = await fetch(url, {
-        headers: this.getHeaders()
-      });
-      
+      // Use the recursive tree API
+      const url = `${GITHUB_API_BASE}/repos/${this.owner}/${this.repo}/git/trees/main?recursive=1`;
+      console.log('Fetching repo structure (tree API):', url);
+      const response = await fetch(url, { headers: this.getHeaders(), cache: 'no-store' });
       if (!response.ok) {
         const errorText = await response.text();
         console.error('GitHub API Error Response:', errorText);
         throw new Error(`GitHub API error: ${response.status} - ${errorText}`);
       }
-
-      const data: GitHubFile[] = await response.json();
-      console.log('Fetched repo data:', data.length, 'items');
-      
-      const processedData = await Promise.all(
-        data.map(async (item): Promise<FileNode> => {
-          if (item.type === 'dir') {
-            try {
-              const children = await this.fetchRepoStructure(item.path);
-              return {
-                name: item.name,
-                path: item.path,
-                type: 'folder',
-                children,
-                sha: item.sha
-              };
-            } catch (error) {
-              console.warn(`Failed to fetch folder contents for ${item.path}:`, error);
-              return {
-                name: item.name,
-                path: item.path,
-                type: 'folder',
-                children: [],
-                sha: item.sha
-              };
-            }
-          } else {
-            return {
-              name: item.name,
-              path: item.path,
-              type: 'file',
-              sha: item.sha
-            };
-          }
-        })
-      );
-
-      // Cache the result
-      this.cache.set(cacheKey, {
-        data: processedData,
-        timestamp: Date.now()
+      const data = await response.json();
+      if (!data.tree) throw new Error('No tree data found');
+      // Convert tree to FileNode structure
+      const fileMap: Record<string, FileNode> = {};
+      data.tree.forEach((item: any) => {
+        const type = item.type === 'tree' ? 'folder' : 'file';
+        fileMap[item.path] = { name: item.path.split('/').pop(), path: item.path, type, sha: item.sha };
       });
-
-      console.log('Successfully processed repo structure:', processedData.length, 'items');
+      // Build hierarchy
+      Object.values(fileMap).forEach(node => {
+        const parentPath = node.path.includes('/') ? node.path.substring(0, node.path.lastIndexOf('/')) : null;
+        if (parentPath && fileMap[parentPath]) {
+          if (!fileMap[parentPath].children) fileMap[parentPath].children = [];
+          fileMap[parentPath].children.push(node);
+        }
+      });
+      // Only return top-level nodes
+      const processedData = Object.values(fileMap).filter(node => !node.path.includes('/'));
+      this.cache.set(cacheKey, { data: processedData, timestamp: Date.now() });
+      console.log('Successfully processed repo structure (tree API):', processedData.length, 'items');
       return processedData;
     } catch (error) {
-      console.error('Error fetching repo structure:', error);
+      console.error('Error fetching repo structure (tree API):', error);
       throw error;
     }
   }

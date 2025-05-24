@@ -156,7 +156,6 @@ const Index = () => {
         ) : (
           <div className="flex-1 flex items-center justify-center bg-vintage-gray-900">
             <div className="text-center max-w-md">
-              <div className="text-6xl mb-6 terminal-glow">⚡</div>
               <h2 className="text-3xl font-bold text-vintage-purple-light font-serif mb-4">
                 DSA Solutions
               </h2>
